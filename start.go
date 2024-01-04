@@ -51,17 +51,17 @@ var startCmd = &cobra.Command{
 			Handler: nil,
 		}
 
-		log.Printf("starting server, listen on %s\n", addr)
+		log.Printf("[cmd.Run] starting server, listen on %s\n", addr)
 		go func() {
 			err := server.ListenAndServe()
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("[cmd.Run] listen and serve fail, addr=%s, err=%v\n", addr, err)
 			}
 		}()
 
 		// Block until interrupt signal is received.
 		quitSignal := <-quitChan
-		log.Println("Get signal:", quitSignal)
+		log.Println("[cmd.Run] Get signal:", quitSignal)
 		server.Close()
 	},
 }
@@ -74,7 +74,7 @@ func init() {
 // pidFile return procid file
 func pidFile(logPath string) (pidFile string) {
 	if err := os.MkdirAll(logPath, os.ModePerm); err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.pidFile] make all dir fail, logPath=%s, err=%v\n", logPath, err)
 	}
 	pidFile = filepath.Join(logPath, ProcName+".pid")
 	return
@@ -86,7 +86,7 @@ func writeProcID(logPath string) {
 	pid := strconv.Itoa(os.Getpid())
 	err := os.WriteFile(pidFile, []byte(pid), 0644)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.writeProcID] write pid file fail, pidFile=%s, err=%v\n", pidFile, err)
 	}
 }
 
@@ -96,12 +96,12 @@ func readProcID(logPath string) int {
 
 	content, err := os.ReadFile(pidFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.readProcID] read pid file fail, pidFile=%s, err=%v\n", pidFile, err)
 	}
 
 	procID, err := strconv.Atoi(string(content))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.readProcID] strconv procID fail, strProcID=%s, err=%v\n", string(content), err)
 	}
 	return procID
 }
@@ -111,11 +111,11 @@ func exit(logPath string) {
 	pid := readProcID(logPath)
 	p, err := os.FindProcess(pid)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.exit] find process fail, pid=%d, err=%v\n", pid, err)
 	}
 
 	if err = p.Signal(os.Interrupt); err != nil {
-		log.Fatal(err)
+		log.Fatalf("[cmd.exit] send interrupt signal fail, pid=%d, err=%v\n", pid, err)
 	}
 }
 

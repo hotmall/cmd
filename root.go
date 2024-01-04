@@ -53,7 +53,7 @@ func Execute() {
 func init() {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("getwd fail, err = %v", err)
+		log.Fatalf("[cmd.init] getwd fail, err = %v\n", err)
 	}
 	defaultPrefix = wd
 	rootCmd.PersistentFlags().StringVarP(&prefix, "prefix", "p", defaultPrefix, "set prefix path")
@@ -62,16 +62,16 @@ func init() {
 func PrefixPath() string {
 	p, err := filepath.Abs(prefix)
 	if err != nil {
-		log.Printf("get prefix path fail, prefix=%s, err=%v", prefix, err)
-		p = prefix
+		log.Printf("[cmd.PrefixPath] get prefix path fail, prefix=%s, err=%v\n", prefix, err)
+		p = filepath.Clean(prefix)
 	}
 	return p
 }
 
 func LogPath() string {
-	return PrefixPath() + "/var/log"
+	return filepath.Join(PrefixPath(), "var", "log")
 }
 
 func ConfigFile() string {
-	return PrefixPath() + "/etc/conf/Hotfile"
+	return filepath.Join(PrefixPath(), "etc", "conf", "Hotfile")
 }
